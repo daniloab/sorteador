@@ -17,13 +17,66 @@ function filterUrl(url){
     return(url.split(" "))
 }
 
-function sortMember(){
-    url = filterUrl(document.getElementById("event").value)
-    console.log(url)
-    const members = makeRequest(url[0], url[1])
-    random_number = Math.floor(Math.random() * members.length);
-    document.getElementById("teste").innerHTML = members[random_number]['member']['name'];
-    document.getElementById("photo").src = members[random_number]['member']['photo']['photo_link']
+function getRandomMember(members) {
+    return members[Math.floor(Math.random() * members.length)];
+}
+
+function getSortingList(members) {
+    const numberOfMembers = Math.floor(members.length / 10);
+    const sortingList = [];
+
+    let i = 0;
+    while(numberOfMembers > i) {
+        sortingList.push(getRandomMember(members));
+        i++;
+    }
+
+    return sortingList;
+}
+
+function renderWinner(member) {
+    const { photo = { photo_link: '0.png.png' } } = member;
+
+    document.getElementById("teste").innerHTML = member['name'];
+    document.getElementById("photo").src = photo.photo_link
+    //document.getElementById("photo").classList.remove("blured");
     document.getElementById("photo").height = "200"
     document.getElementById("photo").width = "200"
+}
+
+function renderMember(member) {
+    const { photo = { photo_link: '0.png.png' } } = member;
+
+    document.getElementById("teste").innerHTML =  'Sorteando...';
+    document.getElementById("photo").src = photo.photo_link
+    document.getElementById("photo").classList.add("blured");
+    document.getElementById("photo").height = "200"
+    document.getElementById("photo").width = "200"
+}
+
+async function renderSort(){
+    url = filterUrl(document.getElementById("event").value)
+    const members = makeRequest(url[0], url[1])
+
+    const sortingList = getSortingList(members);
+    const winner = getRandomMember(members);
+
+    const { length } = sortingList;
+
+    const timeout = Math.floor(3000 / length);
+
+    for (let i = 0; i < sortingList.length; i++) {
+        await promisefySorting(sortingList[i].member, timeout);
+    }
+
+    renderWinner(winner.member)
+}
+
+function promisefySorting(member, timeout) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            renderMember(member);
+            resolve();
+        }, timeout)
+    });
 }
