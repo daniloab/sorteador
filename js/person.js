@@ -13,17 +13,74 @@ function filterUrl(url){
         url = url.replace('https://www.meetup.com', '')
         url = url.replace('/events/',' ')
         url = url.substring(0, url.length - 1)}
-        console.log(url)
+        
     return(url.split(" "))
 }
 
-function sortMember(){
-    url = filterUrl(document.getElementById("event").value)
-    console.log(url)
-    const members = makeRequest(url[0], url[1])
-    random_number = Math.floor(Math.random() * members.length);
-    document.getElementById("teste").innerHTML = members[random_number]['member']['name'];
-    document.getElementById("photo").src = members[random_number]['member']['photo']['photo_link']
+function getRandomMember(members) {
+    return members[Math.floor(Math.random() * members.length)].member;
+}
+
+function getFakeSortingList(members) {
+    const numberOfMembers = Math.floor(members.length / 5);
+    const list = [];
+
+    let i = 0;
+    while(numberOfMembers > i) {
+        list.push(getRandomMember(members));
+        i++;
+    }
+
+    return list;
+}
+
+function renderFakeWinner(member) {
+    document.getElementById("teste").innerHTML =  'Sorteando...';
+    document.getElementById("photo").classList.add("blured");
+
+    renderMember(member);
+}
+
+function renderWinner(member) {
+    document.getElementById("teste").innerHTML = member['name'];
+    document.getElementById("photo").classList.remove("blured");
+
+    renderMember(member);
+}
+
+function renderMember(member) {
+    const { photo = { photo_link: '0.png.png' } } = member;
+
+    document.getElementById("photo").src = photo.photo_link
     document.getElementById("photo").height = "200"
     document.getElementById("photo").width = "200"
+}
+
+async function renderFakeSort(list) {
+    const { length } = list;
+    const timeout = Math.floor(4000 / length);
+
+    for (let i = 0; i < list.length; i++) {
+        await promisefyFakeSorting(list[i], timeout);
+    }
+}
+
+function promisefyFakeSorting(member, timeout) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            renderFakeWinner(member);
+            resolve();
+        }, timeout)
+    });
+}
+
+async function sort(){
+    url = filterUrl(document.getElementById("event").value)
+    const members = makeRequest(url[0], url[1])
+
+    const fakeSortingList = getFakeSortingList(members);
+    const winner = getRandomMember(members);
+
+    await renderFakeSort(fakeSortingList);
+    renderWinner(winner)
 }
