@@ -13,70 +13,74 @@ function filterUrl(url){
         url = url.replace('https://www.meetup.com', '')
         url = url.replace('/events/',' ')
         url = url.substring(0, url.length - 1)}
-        console.log(url)
+        
     return(url.split(" "))
 }
 
 function getRandomMember(members) {
-    return members[Math.floor(Math.random() * members.length)];
+    return members[Math.floor(Math.random() * members.length)].member;
 }
 
-function getSortingList(members) {
-    const numberOfMembers = Math.floor(members.length / 10);
-    const sortingList = [];
+function getFakeSortingList(members) {
+    const numberOfMembers = Math.floor(members.length / 5);
+    const list = [];
 
     let i = 0;
     while(numberOfMembers > i) {
-        sortingList.push(getRandomMember(members));
+        list.push(getRandomMember(members));
         i++;
     }
 
-    return sortingList;
+    return list;
+}
+
+function renderFakeWinner(member) {
+    document.getElementById("teste").innerHTML =  'Sorteando...';
+    document.getElementById("photo").classList.add("blured");
+
+    renderMember(member);
 }
 
 function renderWinner(member) {
-    const { photo = { photo_link: '0.png.png' } } = member;
-
     document.getElementById("teste").innerHTML = member['name'];
-    document.getElementById("photo").src = photo.photo_link
     document.getElementById("photo").classList.remove("blured");
-    document.getElementById("photo").height = "200"
-    document.getElementById("photo").width = "200"
+
+    renderMember(member);
 }
 
 function renderMember(member) {
     const { photo = { photo_link: '0.png.png' } } = member;
 
-    document.getElementById("teste").innerHTML =  'Sorteando...';
     document.getElementById("photo").src = photo.photo_link
-    document.getElementById("photo").classList.add("blured");
     document.getElementById("photo").height = "200"
     document.getElementById("photo").width = "200"
 }
 
-async function renderSort(){
-    url = filterUrl(document.getElementById("event").value)
-    const members = makeRequest(url[0], url[1])
+async function renderFakeSort(list) {
+    const { length } = list;
+    const timeout = Math.floor(4000 / length);
 
-    const sortingList = getSortingList(members);
-    const winner = getRandomMember(members);
-
-    const { length } = sortingList;
-
-    const timeout = Math.floor(3000 / length);
-
-    for (let i = 0; i < sortingList.length; i++) {
-        await promisefySorting(sortingList[i].member, timeout);
+    for (let i = 0; i < list.length; i++) {
+        await promisefyFakeSorting(list[i], timeout);
     }
-
-    renderWinner(winner.member)
 }
 
-function promisefySorting(member, timeout) {
+function promisefyFakeSorting(member, timeout) {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
-            renderMember(member);
+            renderFakeWinner(member);
             resolve();
         }, timeout)
     });
+}
+
+async function sort(){
+    url = filterUrl(document.getElementById("event").value)
+    const members = makeRequest(url[0], url[1])
+
+    const fakeSortingList = getFakeSortingList(members);
+    const winner = getRandomMember(members);
+
+    await renderFakeSort(fakeSortingList);
+    renderWinner(winner)
 }
