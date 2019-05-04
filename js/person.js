@@ -39,7 +39,7 @@ function renderWinner(member) {
 
     document.getElementById("teste").innerHTML = member['name'];
     document.getElementById("photo").src = photo.photo_link
-    //document.getElementById("photo").classList.remove("blured");
+    document.getElementById("photo").classList.remove("blured");
     document.getElementById("photo").height = "200"
     document.getElementById("photo").width = "200"
 }
