@@ -3,6 +3,7 @@ function makeRequest(event, id){
     const url='https://cors-anywhere.herokuapp.com/https://api.meetup.com/'+event+'/events/'+id+'/attendance?access_token=4c6be9c3a21d7722b50fa173a0e53d40';
     Http.open("GET", url, false);
     Http.send();
+    Http.abort();
     return JSON.parse(Http.responseText)
 }
 
