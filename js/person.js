@@ -10,6 +10,7 @@ function filterUrl(url){
     if (url == '') {
         M.toast({html: 'Ooops, parece que vc se esqueceu de colar o link do evento!', classes: 'rounded'});
     } else {
+        url = url.replace('pt-BR/', '')
         url = url.replace('https://www.meetup.com', '')
         url = url.replace('/events/',' ')
         url = url.substring(0, url.length - 1)}
